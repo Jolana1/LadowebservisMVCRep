@@ -252,12 +252,36 @@
         color: #fff;
     }
 
+    /* Google Pay like button */
+    .btn-googlepay {
+        flex: 1;
+        background: #fff;
+        color: #202124;
+        padding: 12px 20px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        min-width: 200px;
+    }
+
+    .btn-googlepay:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
+    }
+
     /* ========== PRODUCT IMAGE ========== */
     .product-image-container {
         text-align: center;
         margin: 25px 0;
         position: relative;
     }
+
 
     .product-image-container img {
         max-width: 100%;
@@ -424,6 +448,62 @@
         <p style="margin-top: 15px; font-size: 16px; color: white;">Keď ide o zdravie, nekompromisujte s cenami!</p>
     </div>
 
+            <script>
+                // One-click: build minimal cart and POST to StartStripeCheckout for server-side Stripe session creation
+                window.lwsGooglePayQuickBuy = function (productId) {
+                    try {
+                        var catalog = window.__lws_products || {};
+                        var prod = catalog[productId] || null;
+                        if (!prod) { alert('Produkt sa nenasiel'); return; }
+
+                        // Build minimal cart JSON expected by server: { "<id>": { "Quantity": 1, "Image": "..." } }
+                        var cartObj = {};
+                        cartObj[productId.toString()] = { Quantity: 1, Image: (prod.Image || '') };
+                        var cartJson = JSON.stringify(cartObj);
+
+                        // prepare shipping info from local storage if available
+                        var ship = {};
+                        try { ship = (typeof loadShipping === 'function') ? loadShipping() : JSON.parse(localStorage.getItem('lws_shipping_v1') || '{}'); } catch (e) { ship = {}; }
+
+                        // Name/email may be collected in sidecart fields if present
+                        var name = document.getElementById('sidecart-customer-name') ? document.getElementById('sidecart-customer-name').value.trim() : '';
+                        var email = document.getElementById('sidecart-customer-email') ? document.getElementById('sidecart-customer-email').value.trim() : '';
+
+                        // Create hidden form
+                        var form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '/Home/StartStripeCheckout';
+
+                        // anti-forgery token clone if present
+                        var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                        if (tokenInput) form.appendChild(tokenInput.cloneNode(true));
+
+                        function append(name, val) {
+                            var i = document.createElement('input');
+                            i.type = 'hidden'; i.name = name; i.value = val || ''; form.appendChild(i);
+                        }
+
+                        append('CartJson', cartJson);
+                        append('PaymentMethod', 'stripe');
+                        append('ShippingMethod', ship.method || '');
+                        append('ZasielkovnaPickupPoint', ship.pickupPoint || '');
+                        append('ZasielkovnaPickupPointName', ship.pickupPointName || '');
+                        append('PickupPointDetailsJson', ship.pickupPointJson || '');
+                        append('ZasielkovnaPickupPointJson', ship.pickupPointJson || '');
+                        append('ShippingAddressLine1', ship.addressLine1 || '');
+                        append('ShippingAddressLine2', ship.addressLine2 || '');
+                        append('ShippingCity', ship.city || '');
+                        append('ShippingZip', ship.zip || '');
+                        append('ShippingCountry', ship.country || '');
+                        append('Name', name || '');
+                        append('Email', email || '');
+
+                        document.body.appendChild(form);
+                        form.submit();
+                    } catch (e) { console.error(e); alert('Chyba pri spusteni platby. Skúste to prosím znova.'); }
+                };
+            </script>
+
     <!-- Loading Spinner -->
     <div id="searchSpinnerOverlay" class="search-spinner-overlay">
         <div class="spinner-container">
@@ -464,6 +544,10 @@
                 <a href="https://buy.stripe.com/bJebJ1as6gng0SM8Sq4wM04?locale=sk" class="btn-stripe" target="_blank">
                     <i class="fa fa-credit-card"></i> Kúpiť cez Stripe
                 </a>
+                <button type="button" class="btn-googlepay" onclick="window.lwsGooglePayQuickBuy('1')">
+                    <img src="https://www.gstatic.com/devrel-devsite/prod/v0d3ba93926ab9dd98ec6053b457769278e41b1a086e404f96cace35cf1aaba3a/google_pay_logo.svg" alt="Google Pay" style="height:20px;" />
+                    Kúpiť cez Google Pay
+                </button>
                 <button type="button" class="btn-add-cart add-to-cart" data-id="1">
                     <i class="fa fa-shopping-cart"></i> Pridať do košíka
                 </button>

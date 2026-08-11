@@ -10,25 +10,20 @@
 
     // Show/hide button based on scroll position
     window.addEventListener('scroll', function () {
+        if (!goTopBtn) return;
         if (window.pageYOffset > 300) {
             goTopBtn.classList.add('show');
         } else {
             goTopBtn.classList.remove('show');
         }
-    });
+    }, { passive: true });
 
     // Smooth scroll to top function
     window.scrollToTop = function () {
-        const scrollDuration = 500; // milliseconds
-        const scrollStep = window.pageYOffset / (scrollDuration / 15);
-
-        const scrollInterval = setInterval(function () {
-            if (window.pageYOffset > 0) {
-                window.scrollBy(0, -scrollStep);
-            } else {
-                clearInterval(scrollInterval);
-            }
-        }, 15);
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
     };
 
     // ===== IMPROVED CHAT FUNCTIONALITY =====

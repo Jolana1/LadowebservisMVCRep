@@ -287,6 +287,7 @@
             transition: all 0.3s ease;
             backdrop-filter: blur(14px);
             -webkit-backdrop-filter: blur(14px);
+            overflow: visible;
         }
 
             .navbar::after {
@@ -316,6 +317,22 @@
             height: 70px;
             color: var(--lws-nav-text) !important;
             transition: all 0.3s ease;
+            gap: 12px;
+        }
+
+        .navbar-brand::after {
+            content: 'Health • Beauty • IT';
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.72);
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            white-space: nowrap;
         }
 
             .navbar-brand img {
@@ -400,6 +417,10 @@
             font-weight: 700 !important;
         }
 
+        .nav-segment-dropdown > a {
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.05);
+        }
+
         .nav-segment-dropdown > a .fa,
         .nav-segment-dropdown > a .glyphicon,
         .nav-main-links > .nav-item > a .fa,
@@ -464,6 +485,19 @@
             font-weight: 600;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
+        }
+
+        .navbar .dropdown-menu > li > a {
+            border-radius: 10px;
+            margin: 2px 10px;
+            padding: 10px 14px;
+        }
+
+        .navbar .dropdown-menu > li > a:hover,
+        .navbar .dropdown-menu > li > a:focus {
+            background: rgba(255,255,255,0.12);
+            color: #fff !important;
+            transform: translateX(3px);
         }
 
             .cart-toggle-btn:hover {
@@ -1556,11 +1590,11 @@
 
         /* ===== FOOTER STYLING - PROFESSIONAL & RESPONSIVE ===== */
         .site-footer {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-top: 3px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 -4px 20px rgba(102, 126, 234, 0.25);
+            background: linear-gradient(135deg, #1f2a44 0%, #2d3f68 48%, #5d33fb 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 -12px 34px rgba(25, 36, 60, 0.24);
             color: #fff;
-            padding: 30px 20px 15px;
+            padding: 34px 20px 18px;
             margin-top: 60px;
             font-size: 13px;
             line-height: 1.6;
@@ -1585,8 +1619,16 @@
             color: #fff;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.18);
             padding-bottom: 8px;
+        }
+
+        .site-footer-section {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
         }
 
         .site-footer-section ul {
@@ -1623,8 +1665,8 @@
         }
 
         .payment-icon {
-            background: rgba(255, 255, 255, 0.15);
-            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
             padding: 6px 10px;
             display: flex;
             align-items: center;
@@ -2294,6 +2336,12 @@
             <div class="card" style="border:1px solid #e6e6e6; border-radius:8px; padding:12px; margin-bottom:12px;">
                 <div style="font-weight:800; color:#5d33fb; margin-bottom: 8px; font-size: 13px;">🚚 Doprava a objednávka</div>
 
+                <!-- Customer Details for Checkout -->
+                <div style="margin-bottom: 10px;">
+                    <input id="sidecart-customer-name" type="text" class="form-control" placeholder="Vaše Meno" style="margin-bottom: 8px;" />
+                    <input id="sidecart-customer-email" type="email" class="form-control" placeholder="E-mail" />
+                </div>
+
                 <div class="form-group" style="margin-bottom:10px;">
                     <select id="sidecart-shipping-method" class="form-control" onchange="window.lwsSetShippingMethod(this.value)">
                         <option value="">Vyberte dopravu…</option>
@@ -2342,15 +2390,15 @@
                 <a id="sidecart-checkout-link" class="btn btn-outline-primary" href="/Home/Kosik?checkout=1" style="padding: 10px; font-size: 13px; font-weight: 600; border-color: #5d33fb; color: #5d33fb; text-align: center;">
                     ✓ Skontrolovať a dokončiť objednávku
                 </a>
-                <a class="btn btn-outline-secondary" href='@Url.Action("Produkty","Home")' style="padding: 10px; font-size: 13px; font-weight: 600; border-color: #17a2b8; color: #17a2b8; text-align: center;">
-                    🔍 Pozrieť Všetky Produkty
-                </a>
+                <button type="button" id="sidecart-comgate-pay-btn" onclick="window.lwsStartComgateCheckout()" class="btn btn-outline-success" style="padding: 10px; font-size: 13px; font-weight: 600; border-color: #28a745; color: #28a745; text-align: center; background: transparent; transition: all 0.2s ease-in-out;">
+                    💳 Odoslať objednávku pre bankový prevod 
+                </button>
             </div>
 
             <!-- Stripe Buy Button -->
             <div id="sidecart-stripe-panel" style="padding:10px; border-radius:12px; margin-bottom:12px;">
             <div style="margin:0 0 8px 0; font-size:11px; color:#666; text-align:center; line-height:1.4;">
-                Platbu môžete dokončiť tu cez Stripe a tlačítko <strong>Prejsť k platbe</strong> alebo odoslať objednávku pre bankový prevod cez tlačítko <strong>Skontrolovať a dokončiť objednávku</strong>tu alebo na stránke košíka.
+                Platbu môžete dokončiť tu cez tlačítko <strong>Prejsť k platbe(Stripe)</strong> alebo odoslať objednávku pre bankový prevod cez tlačítko <strong>Odoslať objednávku pre bankový prevod</strong>alebo priamo na stránke košíka <strong>Skontrolovať a dokončiť objednávku</strong>
             </div>
             <script async src="https://js.stripe.com/v3/buy-button.js"></script>
             <div style="display:flex; justify-content:center; width:100%; max-width:100%; overflow:hidden; margin-bottom:12px;">
@@ -2359,6 +2407,7 @@
                                    style="display:block; max-width:100%;">
                 </stripe-buy-button>
             </div>
+
             </div>
 
             <!-- Chat Section -->
@@ -2730,6 +2779,93 @@
                         if (actionButtons) actionButtons.classList.remove('sidecart-stripe-highlight');
                     }, 3200);
                 } catch (e) { }
+            };
+
+            window.lwsStartComgateCheckout = function () {
+                var cartJson = localStorage.getItem('lws_cart_v1');
+                if (!cartJson || cartJson === '{}' || cartJson === '[]') {
+                    alert('Váš košík je prázdny.');
+                    return;
+                }
+
+                var name = document.getElementById('sidecart-customer-name') ? document.getElementById('sidecart-customer-name').value.trim() : '';
+                var email = document.getElementById('sidecart-customer-email') ? document.getElementById('sidecart-customer-email').value.trim() : '';
+
+                if (!name) {
+                    alert('Prosím zadajte Vaše meno pre vytvorenie objednávky.');
+                    document.getElementById('sidecart-customer-name').focus();
+                    return;
+                }
+                if (!email || email.indexOf('@@') === -1) {
+                    alert('Prosím zadajte platnú e-mailovú adresu.');
+                    document.getElementById('sidecart-customer-email').focus();
+                    return;
+                }
+
+                var ship = loadShipping();
+                var shippingMethod = ship.method || '';
+                if (!shippingMethod) {
+                    alert('Prosím vyberte typ dopravy.');
+                    document.getElementById('sidecart-shipping-method').focus();
+                    return;
+                }
+
+                // Check physical or pickup address fields if courier or pickup
+                if (isCourierMethod(shippingMethod)) {
+                    var addrLine1 = document.getElementById('sidecart-address-line1') ? document.getElementById('sidecart-address-line1').value.trim() : '';
+                    var addrCity = document.getElementById('sidecart-address-city') ? document.getElementById('sidecart-address-city').value.trim() : '';
+                    var addrZip = document.getElementById('sidecart-address-zip') ? document.getElementById('sidecart-address-zip').value.trim() : '';
+                    if (!addrLine1 || !addrCity || !addrZip) {
+                        alert('Prosím doplňte doručovaciu adresu pre kuriéra.');
+                        return;
+                    }
+                } else if (isPickupMethod(shippingMethod)) {
+                    var pCode = document.getElementById('sidecart-pickup-code') ? document.getElementById('sidecart-pickup-code').value.trim() : '';
+                    if (!pCode) {
+                        alert('Prosím zadajte kód odberného miesta alebo výdajného boxu.');
+                        return;
+                    }
+                }
+
+                // Create a helper hidden form to submit Comgate POST Checkout request
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/Home/StartComgateCheckout';
+
+                // Add CSRF verification token if present. Grab first available verification input
+                var tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
+                if (tokenInput) {
+                    var tokenClone = tokenInput.cloneNode(true);
+                    form.appendChild(tokenClone);
+                }
+
+                var appendField = function (name, val) {
+                    var inp = document.createElement('input');
+                    inp.type = 'hidden';
+                    inp.name = name;
+                    inp.value = val || '';
+                    form.appendChild(inp);
+                };
+
+                appendField('Name', name);
+                appendField('Email', email);
+                appendField('CartJson', cartJson);
+                appendField('ShippingMethod', shippingMethod);
+                appendField('PaymentMethod', 'comgate');
+
+                if (isCourierMethod(shippingMethod)) {
+                    appendField('ShippingAddressLine1', document.getElementById('sidecart-address-line1').value.trim());
+                    appendField('ShippingAddressLine2', document.getElementById('sidecart-address-line2').value.trim());
+                    appendField('ShippingCity', document.getElementById('sidecart-address-city').value.trim());
+                    appendField('ShippingZip', document.getElementById('sidecart-address-zip').value.trim());
+                    appendField('ShippingCountry', document.getElementById('sidecart-address-country').value.trim());
+                } else {
+                    appendField('ZasielkovnaPickupPoint', document.getElementById('sidecart-pickup-code').value.trim());
+                    appendField('ZasielkovnaPickupPointName', document.getElementById('sidecart-pickup-name').value.trim());
+                }
+
+                document.body.appendChild(form);
+                form.submit();
             };
         })();
     </script>

@@ -2294,6 +2294,12 @@
             <div class="card" style="border:1px solid #e6e6e6; border-radius:8px; padding:12px; margin-bottom:12px;">
                 <div style="font-weight:800; color:#5d33fb; margin-bottom: 8px; font-size: 13px;">🚚 Doprava a objednávka</div>
 
+                <!-- Customer Details for Checkout -->
+                <div style="margin-bottom: 10px;">
+                    <input id="sidecart-customer-name" type="text" class="form-control" placeholder="Vaše Meno" style="margin-bottom: 8px;" />
+                    <input id="sidecart-customer-email" type="email" class="form-control" placeholder="E-mail" />
+                </div>
+
                 <div class="form-group" style="margin-bottom:10px;">
                     <select id="sidecart-shipping-method" class="form-control" onchange="window.lwsSetShippingMethod(this.value)">
                         <option value="">Vyberte dopravu…</option>
@@ -2339,18 +2345,38 @@
 
             <!-- Action Buttons -->
             <div id="sidecart-action-buttons" style="display: flex; gap: 8px; margin-bottom: 12px; flex-direction: column;">
-                <a id="sidecart-checkout-link" class="btn btn-outline-primary" href="/Home/Kosik?checkout=1" style="padding: 10px; font-size: 13px; font-weight: 600; border-color: #5d33fb; color: #5d33fb; text-align: center;">
-                    ✓ Skontrolovať a dokončiť objednávku
-                </a>
+                <button id="sidecart-placeorder-btn" type="button" class="btn btn-outline-primary" onclick="window.lwsPlaceOrderFromSidecart()" style="padding: 10px; font-size: 13px; font-weight: 600; border-color: #5d33fb; color: #5d33fb; text-align: center;">
+                    ✓ Odoslať objednávku (bankový prevod)
+                </button>
                 <a class="btn btn-outline-secondary" href='@Url.Action("Produkty","Home")' style="padding: 10px; font-size: 13px; font-weight: 600; border-color: #17a2b8; color: #17a2b8; text-align: center;">
                     🔍 Pozrieť Všetky Produkty
                 </a>
             </div>
 
+            @* Hidden place-order form for sidecart quick submit *@
+            @using (Html.BeginForm("PlaceOrder", "Home", FormMethod.Post, new { id = "sidecartPlaceOrderForm", style = "display:none;" }))
+            {
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="CartJson" id="sidecart_cartJsonInputPlaceOrder" value="" />
+                <input type="hidden" name="PaymentMethod" id="sidecart_PaymentMethod" value="bank" />
+                <input type="hidden" name="ShippingMethod" id="sidecart_shippingMethodInput" value="" />
+                <input type="hidden" name="ZasielkovnaPickupPoint" id="sidecart_zasielkovnaPickupInput" value="" />
+                <input type="hidden" name="ZasielkovnaPickupPointName" id="sidecart_zasielkovnaPickupNameInput" value="" />
+                <input type="hidden" name="PickupPointDetailsJson" id="sidecart_pickupPointDetailsJsonInput" value="" />
+                <input type="hidden" name="ZasielkovnaPickupPointJson" id="sidecart_zasielkovnaPickupJsonInput" value="" />
+                <input type="hidden" name="ShippingAddressLine1" id="sidecart_shippingAddressLine1Input" value="" />
+                <input type="hidden" name="ShippingAddressLine2" id="sidecart_shippingAddressLine2Input" value="" />
+                <input type="hidden" name="ShippingCity" id="sidecart_shippingCityInput" value="" />
+                <input type="hidden" name="ShippingZip" id="sidecart_shippingZipInput" value="" />
+                <input type="hidden" name="ShippingCountry" id="sidecart_shippingCountryInput" value="" />
+                <input type="hidden" name="Name" id="sidecart_name_input" value="" />
+                <input type="hidden" name="Email" id="sidecart_email_input" value="" />
+            }
+
             <!-- Stripe Buy Button -->
             <div id="sidecart-stripe-panel" style="padding:10px; border-radius:12px; margin-bottom:12px;">
             <div style="margin:0 0 8px 0; font-size:11px; color:#666; text-align:center; line-height:1.4;">
-                Platbu môžete dokončiť tu cez Stripe a tlačítko <strong>Prejsť k platbe</strong> alebo odoslať objednávku pre bankový prevod cez tlačítko <strong>Skontrolovať a dokončiť objednávku</strong>tu alebo na stránke košíka.
+                Platbu môžete dokončiť tu cez tlačítko <strong>Prejsť k platbe(Stripe)</strong> alebo odoslať objednávku pre bankový prevod cez tlačítko <strong>Odoslať objednávku pre bankový prevod</strong>alebo priamo na stránke košíka <strong>Skontrolovať a dokončiť objednávku</strong>
             </div>
             <script async src="https://js.stripe.com/v3/buy-button.js"></script>
             <div style="display:flex; justify-content:center; width:100%; max-width:100%; overflow:hidden; margin-bottom:12px;">
@@ -2359,6 +2385,7 @@
                                    style="display:block; max-width:100%;">
                 </stripe-buy-button>
             </div>
+
             </div>
 
             <!-- Chat Section -->
@@ -2730,6 +2757,42 @@
                         if (actionButtons) actionButtons.classList.remove('sidecart-stripe-highlight');
                     }, 3200);
                 } catch (e) { }
+            };
+
+            // Place order from sidecart (bank transfer)
+            window.lwsPlaceOrderFromSidecart = function () {
+                try {
+                    var cartJson = localStorage.getItem('lws_cart_v1') || '{}';
+                    var ship = loadShipping ? loadShipping() : {};
+
+                    // hydrate hidden form inputs
+                    var setVal = function (id, val) { var el = document.getElementById(id); if (el) el.value = val || ''; };
+                    setVal('sidecart_cartJsonInputPlaceOrder', cartJson);
+                    setVal('sidecart_shippingMethodInput', ship.method || '');
+                    setVal('sidecart_zasielkovnaPickupInput', ship.pickupPoint || '');
+                    setVal('sidecart_zasielkovnaPickupNameInput', ship.pickupPointName || '');
+                    setVal('sidecart_pickupPointDetailsJsonInput', ship.pickupPointJson || '');
+                    setVal('sidecart_zasielkovnaPickupJsonInput', ship.pickupPointJson || '');
+                    setVal('sidecart_shippingAddressLine1Input', ship.addressLine1 || '');
+                    setVal('sidecart_shippingAddressLine2Input', ship.addressLine2 || '');
+                    setVal('sidecart_shippingCityInput', ship.city || '');
+                    setVal('sidecart_shippingZipInput', ship.zip || '');
+                    setVal('sidecart_shippingCountryInput', ship.country || '');
+
+                    var name = document.getElementById('sidecart-customer-name') ? document.getElementById('sidecart-customer-name').value.trim() : '';
+                    var email = document.getElementById('sidecart-customer-email') ? document.getElementById('sidecart-customer-email').value.trim() : '';
+                    if (!name || !email) {
+                        alert('Prosím zadajte meno a email pred odoslaním objednávky.');
+                        return;
+                    }
+                    setVal('sidecart_name_input', name);
+                    setVal('sidecart_email_input', email);
+
+                    var form = document.getElementById('sidecartPlaceOrderForm');
+                    if (form) {
+                        form.submit();
+                    }
+                } catch (e) { console.error(e); alert('Chyba pri odoslaní objednávky. Skúste to prosím znova.'); }
             };
         })();
     </script>
